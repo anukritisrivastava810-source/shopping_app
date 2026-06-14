@@ -1,48 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/global_variables.dart';
-import 'package:shop_app/product_card.dart';
+import 'package:shop_app/utils/global_variables.dart';
+import 'package:shop_app/widgets/product_card.dart';
+import 'package:shop_app/pages/product_details_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class ProductList extends StatefulWidget {
+  const ProductList({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ProductList> createState() => _ProductListState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ProductListState extends State<ProductList> {
   final List<String> filters= const[
     'All','Addidas','Nike','Bata'
   ];
   late String selectedFilter;
-
   @override
   void initState(){
     super.initState();
     selectedFilter= filters[0];
   }
-  
-
   @override
   Widget build(BuildContext context) {
+    final size= MediaQuery.of(context).size;
     const border= OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color.fromRGBO(225, 225, 225, 1),
                   ),
-                  borderRadius: BorderRadius.horizontal(left: Radius.circular(50)),
+                  borderRadius: BorderRadius.horizontal(
+                    left: Radius.circular(50)
+                    ),
                 );
-    return Scaffold(
-      body: SafeArea(
+    return SafeArea(
         child: Column(
           children: [
             Row(
               children: [
-                const Padding(
-                  padding: const EdgeInsets.all(20.0),
+                 Padding(
+                  padding:  const EdgeInsets.all(20.0),
                   child: Text('Shoes\nCollection', 
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 35,
-                              ),
+                              style: Theme.of(context).textTheme.titleLarge,
                               ),
                 ),
             const Expanded(
@@ -93,22 +90,66 @@ class _HomePageState extends State<HomePage> {
                 
                 ),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product= products[index];
-                  return ProductCard(
-                    title: product['title'] as String,
-                    price: product['price'] as double,
-                    image: product['imageUrl'] as String,
-                    backgroundColor: index.isEven ? const Color.fromRGBO(216, 240, 253,1):const Color.fromRGBO(245, 247, 249,1),
-                    );
-                },),
+            
+Expanded(
+  child: size.width>650 ? GridView.builder(
+    itemCount: products.length,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 1.75,
+    ),
+    itemBuilder: (context, index) {
+      final product = products[index];
+
+      return GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return ProductDetailsPage(product: product);
+              },
             ),
+          );
+        },
+        child: ProductCard(
+          title: product['title'] as String,
+          price: product['price'] as double,
+          image: product['imageUrl'] as String,
+          backgroundColor: index.isEven
+              ? const Color.fromRGBO(216, 240, 253, 1)
+              : const Color.fromRGBO(245, 247, 249, 1),
+        ),
+      );
+    },
+  ):ListView.builder(
+    itemCount: products.length,
+    itemBuilder: (context, index) {
+      final product = products[index];
+
+      return GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return ProductDetailsPage(product: product);
+              },
+            ),
+          );
+        },
+        child: ProductCard(
+          title: product['title'] as String,
+          price: product['price'] as double,
+          image: product['imageUrl'] as String,
+          backgroundColor: index.isEven
+              ? const Color.fromRGBO(216, 240, 253, 1)
+              : const Color.fromRGBO(245, 247, 249, 1),
+        ),
+      );
+    },
+  ),
+),
               ],
         ),
-      ),
-    );
+      );
   }
 }
